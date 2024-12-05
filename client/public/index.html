@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Builder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 10px;
+            background-color: #f4f4f9;
+        }
+
+        .form-builder-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .question-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+
+        .question-type {
+            margin-bottom: 10px;
+        }
+
+        .add-question-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-question-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .form-preview {
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .form-preview h2 {
+            text-align: center;
+        }
+
+        .question-preview {
+            margin-bottom: 20px;
+        }
+
+        .header-image {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-builder-container">
+        <h1>Form Builder</h1>
+
+        <!-- Header Image Input -->
+        <div>
+            <label for="headerImage">Header Image URL:</label>
+            <input type="text" id="headerImage" placeholder="Enter image URL for header">
+        </div>
+
+        <!-- Add Question Types -->
+        <div>
+            <button class="add-question-btn" onclick="addQuestion('Categorize')">Add Categorize Question</button>
+            <button class="add-question-btn" onclick="addQuestion('Cloze')">Add Cloze Question</button>
+            <button class="add-question-btn" onclick="addQuestion('Comprehension')">Add Comprehension Question</button>
+        </div>
+
+        <!-- Questions Container -->
+        <div id="questions-container"></div>
+
+        <!-- Form Preview -->
+        <div class="form-preview" id="form-preview">
+            <h2>Form Preview</h2>
+            <div id="preview-container"></div>
+        </div>
+
+        <button class="add-question-btn" onclick="showPreview()">submit Form</button>
+    </div>
+
+    <script>
+        // Store the form data in an array
+        let formData = [];
+
+        // Function to add a question
+        function addQuestion(type) {
+            const questionIndex = formData.length;
+            formData.push({
+                type: type,
+                questionText: '',
+                options: [],
+                answer: '',
+                image: ''
+            });
+
+            const questionContainer = document.createElement('div');
+            questionContainer.classList.add('question-container');
+            questionContainer.innerHTML = `
+                <h3>${type} Question</h3>
+                <label for="question-text-${questionIndex}">Question Text:</label>
+                <input type="text" id="question-text-${questionIndex}" placeholder="Enter the question text" oninput="updateQuestion(${questionIndex}, 'questionText', this.value)">
+                
+                <label for="question-image-${questionIndex}">Question Image URL:</label>
+                <input type="text" id="question-image-${questionIndex}" placeholder="Enter image URL" oninput="updateQuestion(${questionIndex}, 'image', this.value)">
+                
+                <div class="question-type">
+                    <label for="question-options-${questionIndex}">Options (comma separated):</label>
+                    <input type="text" id="question-options-${questionIndex}" placeholder="Enter options" oninput="updateQuestion(${questionIndex}, 'options', this.value)">
+                </div>
+                
+                <div class="question-answer">
+                    <label for="question-answer-${questionIndex}">Correct Answer:</label>
+                    <input type="text" id="question-answer-${questionIndex}" placeholder="Enter the correct answer" oninput="updateQuestion(${questionIndex}, 'answer', this.value)">
+                </div>
+            `;
+
+            document.getElementById('questions-container').appendChild(questionContainer);
+        }
+
+        // Function to update question data
+        function updateQuestion(index, field, value) {
+            formData[index][field] = value;
+        }
+
+        // Function to generate a form preview
+        function showPreview() {
+            const previewContainer = document.getElementById('preview-container');
+            previewContainer.innerHTML = '';
+
+            const headerImage = document.getElementById('headerImage').value;
+            if (headerImage) {
+                const img = document.createElement('img');
+                img.src = headerImage;
+                img.alt = "Header Image";
+                img.style.width = '100%';
+                img.classList.add('header-image');
+                previewContainer.appendChild(img);
+            }
+
+            formData.forEach((question, index) => {
+                const questionPreview = document.createElement('div');
+                questionPreview.classList.add('question-preview');
+
+                let questionHtml = `<h4>${question.type} Question:</h4>`;
+                questionHtml += `<p><strong>Question Text:</strong> ${question.questionText}</p>`;
+                if (question.image) {
+                    questionHtml += `<p><strong>Image:</strong> <img src="${question.image}" alt="Question Image" style="max-width: 100px;"></p>`;
+                }
+                if (question.options.length > 0) {
+                    questionHtml += `<p><strong>Options:</strong> ${question.options.join(', ')}</p>`;
+                }
+                questionHtml += `<p><strong>Answer:</strong> ${question.answer}</p>`;
+
+                questionPreview.innerHTML = questionHtml;
+                previewContainer.appendChild(questionPreview);
+            });
+
+            document.getElementById('form-preview').style.display = 'block';
+        }
+    </script>
+    <!-- Acknowledgment Message -->
+    <div class="acknowledgment" id="acknowledgment">
+      <p>Thank you for filling out the form!</p>
+    </div>
+  </div>
+
+  <script>
+    function submitForm() {
+      // Get the values of each question
+      const categorizeAnswer = document.getElementById('categorize').value.trim();
+      const clozeAnswer = document.getElementById('cloze').value.trim();
+      const comprehensionAnswer = document.getElementById('comprehension').value.trim();
+
+      // Check if all fields are filled out
+      if (!categorizeAnswer || !clozeAnswer || !comprehensionAnswer) {
+        alert('Please fill in all the fields before submitting.');
+        return;
+      }
+
+      // Display acknowledgment message
+      document.getElementById('acknowledgment').style.display = 'block';
+
+      // Optionally, you can save the answers to a database here or process them further
+      console.log({
+        categorize: categorizeAnswer,
+        cloze: clozeAnswer,
+        comprehension: comprehensionAnswer,
+      });
+    }
+  </script>
+
+</body>
+
+</html>
